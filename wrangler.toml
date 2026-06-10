@@ -5,4 +5,4 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "knowledge_base"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "b1d32264-e25a-4f0e-9180-4c86fc01d28e"
