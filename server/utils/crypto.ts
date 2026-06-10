@@ -1,4 +1,5 @@
 const encoder = new TextEncoder()
+const pbkdf2Iterations = 100000
 
 const toBase64Url = (input: ArrayBuffer | Uint8Array) => {
   const bytes = input instanceof Uint8Array ? input : new Uint8Array(input)
@@ -34,7 +35,7 @@ export const hashPassword = async (password: string) => {
       name: 'PBKDF2',
       hash: 'SHA-256',
       salt,
-      iterations: 120000
+      iterations: pbkdf2Iterations
     },
     key,
     256
@@ -57,7 +58,7 @@ export const verifyPassword = async (password: string, storedHash: string) => {
       name: 'PBKDF2',
       hash: 'SHA-256',
       salt,
-      iterations: 120000
+      iterations: pbkdf2Iterations
     },
     key,
     256
