@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
+    "build:cloudflare": "nuxt build --preset=cloudflare_pages",
     "dev": "nuxt dev",
+    "dev:cloudflare": "wrangler pages dev dist --d1 DB=knowledge_base",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
@@ -16,6 +18,7 @@
     "vue-router": "latest"
   },
   "devDependencies": {
-    "typescript": "latest"
+    "typescript": "latest",
+    "wrangler": "latest"
   }
 }

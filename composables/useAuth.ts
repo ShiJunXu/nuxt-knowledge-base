@@ -1,85 +1,51 @@
 import type { AppUser } from '~/types/knowledge'
 
-interface StoredUser extends AppUser {
-  password: string
-}
-
-const storageKey = 'knowledge-hub-users'
-const sessionKey = 'knowledge-hub-session'
-
-const readUsers = (): StoredUser[] => {
-  if (!import.meta.client) return []
-  const raw = localStorage.getItem(storageKey)
-  return raw ? JSON.parse(raw) : []
-}
-
-const writeUsers = (users: StoredUser[]) => {
-  if (import.meta.client) {
-    localStorage.setItem(storageKey, JSON.stringify(users))
-  }
-}
-
-const persistSession = (user: AppUser | null) => {
-  if (!import.meta.client) return
-
-  if (user) {
-    localStorage.setItem(sessionKey, JSON.stringify(user))
-  } else {
-    localStorage.removeItem(sessionKey)
-  }
-}
-
 export const useAuth = () => {
   const currentUser = useState<AppUser | null>('current-user', () => null)
+  const initialized = useState('auth-initialized', () => false)
 
-  const init = () => {
-    if (!import.meta.client || currentUser.value) return
+  const init = async () => {
+    if (initialized.value) return
 
-    const raw = localStorage.getItem(sessionKey)
-    currentUser.value = raw ? JSON.parse(raw) : null
+    try {
+      const response = await $fetch<{ user: AppUser | null }>('/api/me')
+      currentUser.value = response.user
+    } catch {
+      currentUser.value = null
+    } finally {
+      initialized.value = true
+    }
   }
 
-  const register = (payload: StoredUser) => {
-    const users = readUsers()
-    const email = payload.email.trim().toLowerCase()
-
-    if (users.some((user) => user.email === email)) {
-      throw new Error('这个邮箱已经注册过了')
-    }
-
-    const nextUser = {
-      name: payload.name.trim(),
-      email,
-      password: payload.password
-    }
-
-    writeUsers([...users, nextUser])
-    currentUser.value = { name: nextUser.name, email: nextUser.email }
-    persistSession(currentUser.value)
+  const register = async (payload: { name: string; email: string; password: string }) => {
+    const response = await $fetch<{ user: AppUser }>('/api/auth/register', {
+      method: 'POST',
+      body: payload
+    })
+    currentUser.value = response.user
+    initialized.value = true
   }
 
-  const login = (email: string, password: string) => {
-    const user = readUsers().find(
-      (item) => item.email === email.trim().toLowerCase() && item.password === password
-    )
-
-    if (!user) {
-      throw new Error('邮箱或密码不正确')
-    }
-
-    currentUser.value = { name: user.name, email: user.email }
-    persistSession(currentUser.value)
+  const login = async (email: string, password: string) => {
+    const response = await $fetch<{ user: AppUser }>('/api/auth/login', {
+      method: 'POST',
+      body: { email, password }
+    })
+    currentUser.value = response.user
+    initialized.value = true
   }
 
   const logout = async () => {
+    await $fetch('/api/auth/logout', { method: 'POST' })
     currentUser.value = null
-    persistSession(null)
+    initialized.value = true
     await navigateTo('/login')
   }
 
   return {
     currentUser,
     init,
+    initialized,
     login,
     logout,
     register

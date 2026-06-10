@@ -19,14 +19,14 @@ const submit = async () => {
   }
 
   try {
-    register({
+    await register({
       name: name.value,
       email: email.value,
       password: password.value
     })
     await navigateTo('/')
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : '注册失败，请稍后再试'
+  } catch (err: any) {
+    error.value = err?.statusMessage || err?.data?.statusMessage || '注册失败，请稍后再试'
   }
 }
 </script>
@@ -47,7 +47,7 @@ const submit = async () => {
     <section class="auth-card">
       <form class="auth-form" @submit.prevent="submit">
         <h2>注册</h2>
-        <p>本项目使用浏览器本地存储保存演示账号。</p>
+        <p>账号会保存到 Cloudflare D1 数据库。</p>
 
         <div v-if="error" class="alert">{{ error }}</div>
 

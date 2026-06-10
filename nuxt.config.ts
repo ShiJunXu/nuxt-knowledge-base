@@ -18,19 +18,5 @@ export default defineNuxtConfig({
         }
       ]
     }
-  },
-  nitro: {
-    prerender: {
-      routes: [
-        '/',
-        '/login',
-        '/register',
-        '/category/english',
-        '/category/frontend',
-        '/category/wechat',
-        '/category/redbook',
-        '/category/certificates'
-      ]
-    }
   }
 })

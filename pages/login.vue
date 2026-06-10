@@ -13,10 +13,10 @@ const submit = async () => {
   error.value = ''
 
   try {
-    login(email.value, password.value)
+    await login(email.value, password.value)
     await navigateTo('/')
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : '登录失败，请稍后再试'
+  } catch (err: any) {
+    error.value = err?.statusMessage || err?.data?.statusMessage || '登录失败，请稍后再试'
   }
 }
 </script>

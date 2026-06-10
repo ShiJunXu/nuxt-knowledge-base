@@ -1,15 +1,25 @@
 <script setup lang="ts">
+import type { KnowledgeArticle, KnowledgeCategory } from '~/types/knowledge'
+
 definePageMeta({
   middleware: 'auth-client'
 })
 
 const route = useRoute()
-const { categories, getArticlesByCategory, getCategory } = useKnowledgeBase()
 const { currentUser, logout } = useAuth()
-
 const slug = computed(() => String(route.params.slug))
-const category = computed(() => getCategory(slug.value))
-const articles = computed(() => getArticlesByCategory(slug.value))
+
+const { data: categoriesData } = await useFetch<{ categories: KnowledgeCategory[] }>(
+  '/api/categories'
+)
+const { data: articlesData } = await useFetch<{ articles: KnowledgeArticle[] }>('/api/articles', {
+  query: { category: slug },
+  watch: [slug]
+})
+
+const categories = computed(() => categoriesData.value?.categories || [])
+const category = computed(() => categories.value.find((item) => item.slug === slug.value))
+const articles = computed(() => articlesData.value?.articles || [])
 
 const tools = computed(() => [
   {
@@ -25,13 +35,6 @@ const tools = computed(() => [
     text: category.value ? `定期回看${category.value.name}内容，标注下一步优化。` : ''
   }
 ])
-
-if (!category.value) {
-  throw createError({
-    statusCode: 404,
-    statusMessage: '分类不存在'
-  })
-}
 </script>
 
 <template>
@@ -80,6 +83,10 @@ if (!category.value) {
           <span>{{ articles.length }} 篇</span>
         </div>
 
+        <div v-if="!articles.length" class="empty-state">
+          当前分类还没有笔记，可以回到工作台新增。
+        </div>
+
         <div class="article-list">
           <article v-for="article in articles" :key="article.id" class="article-card">
             <div class="article-meta">
@@ -88,6 +95,7 @@ if (!category.value) {
             </div>
             <h3>{{ article.title }}</h3>
             <p>{{ article.summary }}</p>
+            <div class="article-content">{{ article.content }}</div>
             <div class="tag-row">
               <span v-for="tag in article.tags" :key="tag" class="tag">{{ tag }}</span>
             </div>
@@ -98,7 +106,7 @@ if (!category.value) {
       <section class="section">
         <div class="section-header">
           <h2>工作流</h2>
-          <span>可继续扩展为真实编辑器</span>
+          <span>围绕这个分类持续沉淀</span>
         </div>
         <div class="tool-grid">
           <article v-for="tool in tools" :key="tool.title" class="tool">

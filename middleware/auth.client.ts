@@ -1,6 +1,6 @@
-export default defineNuxtRouteMiddleware((to) => {
+export default defineNuxtRouteMiddleware(async (to) => {
   const { currentUser, init } = useAuth()
-  init()
+  await init()
 
   const publicRoutes = ['/login', '/register']
   const isPublicRoute = publicRoutes.includes(to.path)
