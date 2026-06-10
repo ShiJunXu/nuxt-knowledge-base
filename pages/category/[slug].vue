@@ -95,7 +95,7 @@ const tools = computed(() => [
             </div>
             <h3>{{ article.title }}</h3>
             <p>{{ article.summary }}</p>
-            <div class="article-content">{{ article.content }}</div>
+            <div class="article-content" v-html="sanitizeHtml(article.content)" />
             <div class="tag-row">
               <span v-for="tag in article.tags" :key="tag" class="tag">{{ tag }}</span>
             </div>

@@ -1,10 +1,11 @@
 import type { ArticlePayload } from '~/types/knowledge'
+import { sanitizeHtml } from '~/utils/sanitizeHtml'
 
 const cleanPayload = (body: Partial<ArticlePayload>) => ({
   category: String(body.category || '').trim(),
   title: String(body.title || '').trim(),
   summary: String(body.summary || '').trim(),
-  content: String(body.content || '').trim(),
+  content: sanitizeHtml(String(body.content || '')),
   tags: Array.isArray(body.tags) ? body.tags.map(String).filter(Boolean) : [],
   readingMinutes: Number(body.readingMinutes || 5)
 })

@@ -1,4 +1,5 @@
 import type { ArticlePayload } from '~/types/knowledge'
+import { sanitizeHtml } from '~/utils/sanitizeHtml'
 
 export default defineEventHandler(async (event) => {
   const user = await requireUser(event)
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
       body.category,
       body.title.trim(),
       body.summary.trim(),
-      body.content.trim(),
+      sanitizeHtml(String(body.content || '')),
       JSON.stringify(tags),
       Number(body.readingMinutes || 5),
       id,

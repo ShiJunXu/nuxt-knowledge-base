@@ -190,7 +190,7 @@ const deleteArticle = async (article: KnowledgeArticle) => {
               </div>
               <h3>{{ article.title }}</h3>
               <p>{{ article.summary }}</p>
-              <div class="article-content">{{ article.content }}</div>
+              <div class="article-content" v-html="sanitizeHtml(article.content)" />
               <div class="tag-row">
                 <span v-for="tag in article.tags" :key="tag" class="tag">{{ tag }}</span>
               </div>
@@ -232,7 +232,13 @@ const deleteArticle = async (article: KnowledgeArticle) => {
 
             <div class="field">
               <label for="content">正文</label>
-              <textarea id="content" v-model="form.content" class="input textarea large" required />
+              <textarea
+                id="content"
+                v-model="form.content"
+                class="input textarea large"
+                placeholder="<p>可以粘贴 HTML 正文，例如列表、链接、代码块。</p>"
+                required
+              />
             </div>
 
             <div class="field">
